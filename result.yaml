@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: result
+    type: backend
+  name: result
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: result
+      type: backend
+  template:
+    metadata:
+      labels:
+        app: result
+        type: backend
+    spec:
+      containers:
+      - image: dockersamples/result:latest
+        imagePullPolicy: IfNotPresent
+        name: result
+        ports:
+        - containerPort: 80
+          name: result
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: result
+    type: backend
+  name: result
+spec:
+  type: ClusterIP
+  ports:
+  - name: "result-service"
+    port: 5001
+    targetPort: 80
+  selector:
+    app: result
+    type: backend
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  labels:
+    app: result
+    type: backend
+  name: result
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: result
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+---

@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  name: http-ingress
+  namespace: default
+spec:
+  defaultBackend:
+    service:
+      name: vote
+      port:
+        number: 5000
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /result/(.*)
+        pathType: Exact
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /(stylesheets/style.css)
+        pathType: Exact
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /(socket\.io.*)
+        pathType: Exact
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /(angular.min.js)
+        pathType: Exact
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /(app.js)
+        pathType: Exact

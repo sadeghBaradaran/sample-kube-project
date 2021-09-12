@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  name: http-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: vote
+            port:
+              number: 5000
+        path: /vote/(.*)
+        pathType: Prefix
+      - backend:
+          service:
+            name: result
+            port:
+              number: 5001
+        path: /result/(.*)
+        pathType: Prefix

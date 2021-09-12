@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: db
+    type: midle
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+      type: midle
+  template:
+    metadata:
+      labels:
+        app: db
+        type: midle
+    spec:
+      containers:
+      - image: postgres:alpine
+        name: postgres
+        envFrom:
+        - configMapRef:
+            name: postgres-configuration
+        env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-password
+                key: password    
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: db-data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"  
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: postgress-claim
